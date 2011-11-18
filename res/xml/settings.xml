@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference android:key="IURL"
+        android:title="Internal Url"
+        android:summary="The internal URL of the Arduino device (http://host[:port])"
+        android:defaultValue="http://192.168.1.80" />
+    <EditTextPreference android:key="EURL"
+        android:title="SHAC Url"
+        android:summary="The external URL of the Arduino device (http://host[:port])"
+        android:defaultValue="http://enter.house4hack.co.za" />
+    <ListPreference android:key="URLPOLICY"
+        android:title="URL policy"
+        android:summary="Policy on internal/external URL"
+        android:defaultValue="3"
+        android:entries="@array/urlpolicy"
+        android:entryValues="@array/urlpolicyvalues" />
+     <EditTextPreference android:key="LOCALIPSTART"
+        android:title="Local IP Search String"
+        android:summary="If the current IP startswith this string, then use the internal url.  Only valid if using Automatic Policy"
+        android:defaultValue="192.168.1" />   
+    <EditTextPreference android:key="Session"
+        android:title="Session Cookie"
+        android:summary="The session cookie for SHAC - delete value to clear"
+        android:defaultValue="" />
+</PreferenceScreen>

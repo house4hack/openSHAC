@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/settings"
+        android:alphabeticShortcut="@string/settings_shortcut"
+        android:icon="@android:drawable/ic_menu_preferences"
+        android:title="@string/settings_label"/>
+
+    <item
+        android:id="@+id/login"
+        android:alphabeticShortcut="@string/login_shortcut"
+        android:icon="@android:drawable/ic_menu_info_details"
+        android:title="@string/login_label"/>
+
+</menu>
