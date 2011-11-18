@@ -1,0 +1,106 @@
+{{extend 'plugin_jqmobile/layout.html'}}
+
+<center>
+<h2>Resync Arduino SHAC</h2>
+<div style="background: #f0f0f0; margin-bottom: 5px; padding: 8px;">
+
+<form name="resync_arduino" enctype="multipart/form-data" method="post" action="{{=URL()}}">
+<div class="hidden"><input name="_formname" value="resync_arduino" type="hidden"></div>
+<table width=80%>
+ <tr>
+  <td><INPUT TYPE="checkbox" NAME="led1"></td>
+  <td><INPUT TYPE="checkbox" NAME="led2"></td>
+  <td><INPUT TYPE="checkbox" NAME="led3"></td>
+  <td><INPUT TYPE="checkbox" NAME="led4"></td>
+  <td><INPUT TYPE="checkbox" NAME="led5"></td>
+ </tr>
+ <tr>
+  <td colspan=5 align=center>
+   &nbsp;
+  </td>
+ </tr>
+ <tr>
+  <td colspan=5 align=center>
+    Select the correct LED sequence and hold down reset button on Arduino SHAC while being resynced
+  </td>
+ </tr>
+ <tr>
+  <td colspan=5 align=center>
+   <INPUT TYPE="submit" VALUE="Resync Arduino SHAC">
+  </td>
+ </tr>
+</table>
+</form>
+
+</div>
+</center>
+
+<hr width=90%>
+
+<center>
+<h2>Reseed Rolling Code Manually</h2>
+<div style="background: #f0f0f0; margin-bottom: 5px; padding: 8px;">
+
+You obviously know what you are doing, so go ahead hacker :) ... else leave this alone!
+
+<form name="set_seed" enctype="multipart/form-data" method="post" action="{{=URL()}}">
+<div class="hidden"><input name="_formname" value="set_seed" type="hidden"></div>
+<table width=80%>
+ <tr>
+  <td>1st Seed Value</td><td><INPUT TYPE="text" NAME="seed1"></td>
+ </tr>
+ <tr>
+  <td>2nd Seed Value</td><td><INPUT TYPE="text" NAME="seed2"></td>
+ </tr>
+ <tr>
+  <td colspan=5 align=center>
+   &nbsp;
+  </td>
+ </tr>
+ <tr>
+  <td colspan=5 align=center>
+   <INPUT TYPE="submit" VALUE="Reseed rolling code on this site">
+  </td>
+ </tr>
+</table>
+</form>
+
+</div>
+</center>
+
+<hr width=90%>
+
+<center>
+<h2>Arduino SHAC Config</h2>
+<div style="background: #f0f0f0; margin-bottom: 5px; padding: 8px;">
+
+Current URL : 
+{{for config in shacconfigs:}}
+ {{=config.shac_url}}
+
+{{pass}}
+
+
+<form name="shac_url" enctype="multipart/form-data" method="post" action="{{=URL()}}">
+<div class="hidden"><input name="_formname" value="shac_url" type="hidden"></div>
+<table width=80%>
+ <tr>
+  <td>Arduino SHAC Gate Url</td><td><INPUT TYPE="text" NAME="gateurl"></td>
+ </tr>
+ <tr>
+  <td colspan=5 align=center>
+   &nbsp;
+  </td>
+ </tr>
+ <tr>
+  <td colspan=5 align=center>
+   <INPUT TYPE="submit" VALUE="Set Arduino SHAC Configurations">
+  </td>
+ </tr>
+</table>
+</form>
+
+</div>
+</center>
+
+<hr width=90%>

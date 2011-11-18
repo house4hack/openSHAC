@@ -1,0 +1,82 @@
+{{extend 'plugin_jqmobile/layout.html'}}
+
+<center>
+<h2>Add User</h2>
+<div style="background: #f0f0f0; margin-bottom: 5px; padding: 8px;">
+
+{{=form1}}
+
+</div>
+</center>
+
+<hr width=90%>
+
+
+<center>
+<h2>Users</h2>
+<div style="background: #f0f0f0; margin-bottom: 5px; padding: 8px;">
+<table width=80% border=1>
+ <tr>
+  <th>Email</th>
+  <th>Admin</th>
+  <th>User</th>
+ </tr>
+{{for user in ValidUsers:}}
+ <tr>
+  <td>{{=A(user.emailaddr,_href=URL('init','default','admin_users',args=user.id))}}</td>
+  <td>{{=user.admin}}</td>
+  <td>{{=user.user}}</td>
+ </tr>
+{{pass}}
+</table>
+
+</div>
+</center>
+
+
+<!--
+
+<center>
+<h2>Valid Users</h2>
+<div style="background: #f0f0f0; margin-bottom: 5px; padding: 8px;">
+
+{{=db().select(db.valid_members.ALL)}}
+
+</div>
+</center>
+
+<hr width=90%>
+
+
+<center>
+<h2>Valid Users</h2>
+<div style="background: #f0f0f0; margin-bottom: 5px; padding: 8px;">
+
+{{for user in ValidUsers:}}
+ {{=A('Edit',_href=URL('init','default','admin_users',args=user.id))}}
+ {{=user.id}}
+ {{=user.emailaddr}}
+ {{=user.admin}}
+ {{=user.user}}
+
+{{pass}}
+
+</div>
+</center>
+
+//-->
+
+
+{{if len(form) > 0:}}
+<hr width=90%>
+<center>
+<h2>Valid Users</h2>
+<div style="background: #f0f0f0; margin-bottom: 5px; padding: 8px;">
+
+{{=form}}
+
+</div>
+</center>
+<hr width=90%>
+{{pass}}
+
