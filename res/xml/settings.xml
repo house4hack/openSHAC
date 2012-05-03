@@ -1,25 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <EditTextPreference android:key="IURL"
-        android:title="Internal Url"
-        android:summary="The internal URL of the Arduino device (http://host[:port])"
-        android:defaultValue="http://192.168.1.80" />
-    <EditTextPreference android:key="EURL"
-        android:title="SHAC Url"
-        android:summary="The external URL of the Arduino device (http://host[:port])"
-        android:defaultValue="http://enter.house4hack.co.za" />
-    <ListPreference android:key="URLPOLICY"
-        android:title="URL policy"
-        android:summary="Policy on internal/external URL"
-        android:defaultValue="3"
-        android:entries="@array/urlpolicy"
-        android:entryValues="@array/urlpolicyvalues" />
-     <EditTextPreference android:key="LOCALIPSTART"
-        android:title="Local IP Search String"
-        android:summary="If the current IP startswith this string, then use the internal url.  Only valid if using Automatic Policy"
-        android:defaultValue="192.168.1" />   
-    <EditTextPreference android:key="Session"
-        android:title="Session Cookie"
-        android:summary="The session cookie for SHAC - delete value to clear"
-        android:defaultValue="" />
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory android:title="Connection settings" >
+        <EditTextPreference
+            android:defaultValue="http://192.168.1.80"
+            android:key="IURL"
+            android:summary="The internal URL of the Arduino device (http://host[:port])"
+            android:title="Internal Url" />
+        <EditTextPreference
+            android:defaultValue="http://enter.house4hack.co.za"
+            android:key="EURL"
+            android:summary="The external URL of the Arduino device (http://host[:port])"
+            android:title="SHAC Url" />
+
+        <ListPreference
+            android:defaultValue="3"
+            android:entries="@array/urlpolicy"
+            android:entryValues="@array/urlpolicyvalues"
+            android:key="URLPOLICY"
+            android:summary="Policy on internal/external URL"
+            android:title="URL policy" />
+
+        <EditTextPreference
+            android:defaultValue="192.168.1"
+            android:key="LOCALIPSTART"
+            android:summary="If the current IP startswith this string, then use the internal url.  Only valid if using Automatic Policy"
+            android:title="Local IP Search String" />
+        <EditTextPreference
+            android:defaultValue=""
+            android:key="Session"
+            android:summary="The session cookie for SHAC - delete value to clear"
+            android:title="Session Cookie" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Navigation settings">
+        <EditTextPreference
+            android:defaultValue="4 Burger ave, Centurion, Pretoria, South Africa"
+            android:key="ADDRESS"
+            android:summary="Address used for navigation and map"
+            android:title="Physical Address" />
+        <EditTextPreference
+            android:defaultValue="House4Hack"
+            android:key="NAME"
+            android:summary="The name of the building/destination"
+            android:title="Name" />
+    </PreferenceCategory>
+    
 </PreferenceScreen>

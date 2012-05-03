@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    
+
     <string name="app_name">SHAC</string>
 <string name="opengate_message">Opening the gate</string>
 <string name="opendoor_message">Opening the door</string>
@@ -17,4 +17,8 @@
     
 <string name="openaction">za.co.house4hack.shac.OPEN</string>    
     
+    <string name="directions_label">Drive there</string>
+    <string name="map_label">Show in Map</string>
+    <string name="open_success">Success</string>
+
 </resources>

@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Enumeration;
 
 import org.apache.http.cookie.Cookie;
@@ -17,6 +18,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -33,7 +35,6 @@ import com.janrain.android.engage.JREngageError;
 import com.janrain.android.engage.net.async.HttpResponseHeaders;
 import com.janrain.android.engage.types.JRActivityObject;
 import com.janrain.android.engage.types.JRDictionary;
-
 
 public class MainActivity extends Activity implements JREngageDelegate {
 	ProgressDialog pd;
@@ -156,195 +157,202 @@ public class MainActivity extends Activity implements JREngageDelegate {
         wr.write(data);
         wr.flush();
        */
-        
-        
-    	StringBuffer sb = new StringBuffer();
 
-        if(http.getResponseCode()==HttpURLConnection.HTTP_OK){
-        	InputStream is = http.getInputStream();
-        	int c;
-        	while((c = is.read())>0){
-        		  sb.append((char)c);
-        	}
-	        is.close();
-        } else {
-                    	
-        }
-        String retVal = sb.toString();
-		
-		return(retVal);
-	}
-	
-	
-	
-	   @Override
-	    public boolean onCreateOptionsMenu(Menu menu) {
-	        super.onCreateOptionsMenu(menu);
-	        MenuInflater inflater = getMenuInflater();
-	        inflater.inflate(R.menu.menu, menu);
-	        return true;
-	    }
+      StringBuffer sb = new StringBuffer();
 
-	   public String getLocalIpAddress() {
-		    try {
-		        for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
-		            NetworkInterface intf = en.nextElement();
-		            for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
-		                InetAddress inetAddress = enumIpAddr.nextElement();
-		                if (!inetAddress.isLoopbackAddress()) {
-		                    return inetAddress.getHostAddress().toString();
-		                }
-		            }
-		        }
-		    } catch (SocketException ex) {
-		        Log.e("SHAC", ex.toString());
-		    }
-		    return "";
-		}
-	   
-	    @Override
-	    public boolean onOptionsItemSelected(MenuItem item) {
-	        if (item.getItemId() == R.id.settings) {
-				startActivity(new Intent(this, PreferencesActivity.class));
-				return true;
-			}
-	        if (item.getItemId() == R.id.login) {
-	        	pd.setMessage(getString(R.string.busylogin));
-	        	pd.show();
-                janrainLogin();
-				return true;
-			}	        
-	        return false;
-	    }
-	    
-	    private void janrainLogin() {
-            setSessionCookie("");
-	    	String appId = "ggacbghpjlnhjpnfgdem"; 
-        	String tokenUrl = getShacUrl()+"/init/default/user/login"; 
-        	JREngage jrEngage = JREngage.initInstance(this, appId, tokenUrl, this);
-        	jrEngage.showAuthenticationDialog();       	
-			
-		}
-	    
+      if (http.getResponseCode() == HttpURLConnection.HTTP_OK) {
+         InputStream is = http.getInputStream();
+         int c;
+         while ((c = is.read()) > 0) {
+            sb.append((char) c);
+         }
+         is.close();
+      } else {
 
+      }
+      String retVal = sb.toString();
 
-		private void toastMessage(String message){
-	    	Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
-	    }
-		private void toastMessage(int message){
-	    	Toast.makeText(MainActivity.this, getString(message), Toast.LENGTH_LONG).show();
-	    }
-		public void jrEngageDialogDidFailToShowWithError(JREngageError error) {
-	    	setSessionCookie("");
-	    	pd.dismiss();
-	    	toastMessage(getString(R.string.openfail_message)+":"+ error.getMessage());			
-			
-		}
+      return (retVal);
+   }
 
-	    public void jrAuthenticationDidSucceedForUser(JRDictionary authInfo,
-	                                                  String provider) { }
+   @Override
+   public boolean onCreateOptionsMenu(Menu menu) {
+      super.onCreateOptionsMenu(menu);
+      MenuInflater inflater = getMenuInflater();
+      inflater.inflate(R.menu.menu, menu);
+      return true;
+   }
 
-	    public void jrAuthenticationDidReachTokenUrl(String tokenUrl,
-	                                                 String tokenUrlPayload,
-	                                                 String provider) { }
+   public String getLocalIpAddress() {
+      try {
+         for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+            NetworkInterface intf = en.nextElement();
+            for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+               InetAddress inetAddress = enumIpAddr.nextElement();
+               if (!inetAddress.isLoopbackAddress()) { return inetAddress.getHostAddress().toString(); }
+            }
+         }
+      } catch (SocketException ex) {
+         Log.e("SHAC", ex.toString());
+      }
+      return "";
+   }
 
-	    public void jrAuthenticationDidReachTokenUrl(String tokenUrl,
-	                                                 HttpResponseHeaders response,
-	                                                 String tokenUrlPayload,
-	                                                 String provider) { 
-	    	Cookie[] cookies = response.getCookies();
-	    	if(cookies.length > 0){
-	    	     Log.d("SHAC",cookies[0].getValue());
-                 setSessionCookie(cookies[0].getValue());
-                 toastMessage(getString(R.string.open_success));
-	    	}
-	    	pd.dismiss();
-	    }
+   @Override
+   public boolean onOptionsItemSelected(MenuItem item) {
+      if (item.getItemId() == R.id.settings) {
+         startActivity(new Intent(this, PreferencesActivity.class));
+         return true;
+      }
+      if (item.getItemId() == R.id.login) {
+         pd.setMessage(getString(R.string.busylogin));
+         pd.show();
+         janrainLogin();
+         return true;
+      }
 
-	    public void jrAuthenticationDidNotComplete() {
-	    	pd.dismiss();
-    	     toastMessage(getString(R.string.openfail_message));
-	    }
-	    public void jrAuthenticationDidFailWithError(JREngageError error, String provider) { 
-	    	setSessionCookie("");
-	    	pd.dismiss();
-	    	toastMessage(getString(R.string.openfail_message)+":"+ error.getMessage());
-	    	
-	    }
+      if (item.getItemId() == R.id.directions) {
+         String address = Settings.getSettings(this).getAddress();
+         String name = Settings.getSettings(this).getName();
+         Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(
+                  "google.navigation:q=" + URLEncoder.encode(address + "(" + name + ")")));
+         startActivity(i);
+      }
 
-	    public void jrAuthenticationCallToTokenUrlDidFail(String tokenUrl,
-	                                                      JREngageError error,
-	                                                      String provider) {
-	    	setSessionCookie("");
-	    	pd.dismiss();
-	    	toastMessage(getString(R.string.openfail_message)+":"+ error.getMessage());
-	    	
-	    }
+      if (item.getItemId() == R.id.map) {
+         String address = Settings.getSettings(this).getAddress();
+         String name = Settings.getSettings(this).getName();
+         Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(
+                  "geo:0,0?q=" + URLEncoder.encode(address + "(" + name + ")")));
+         startActivity(i);
+      }      
+      
+      return false;
+   }
 
-	    public void jrSocialDidNotCompletePublishing() { }
+   private void janrainLogin() {
+      setSessionCookie("");
+      String appId = "ggacbghpjlnhjpnfgdem";
+      String tokenUrl = getShacUrl() + "/init/default/user/login";
+      JREngage jrEngage = JREngage.initInstance(this, appId, tokenUrl, this);
+      jrEngage.showAuthenticationDialog();
 
-	    public void jrSocialDidCompletePublishing() { }
+   }
 
-	    public void jrSocialDidPublishJRActivity(JRActivityObject activity,
-	                                             String provider) { }
+   private void toastMessage(String message) {
+      Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
+   }
 
-	    public void jrSocialPublishJRActivityDidFail(JRActivityObject activity,
-	                                                 JREngageError error,
-	                                                 String provider) { }
+   private void toastMessage(int message) {
+      Toast.makeText(MainActivity.this, getString(message), Toast.LENGTH_LONG).show();
+   }
 
-		public void setSessionCookie(String sessionCookie) {
-	   	     Editor edit = preferences.edit();
-		     edit.putString("Session",  sessionCookie);
-		     edit.commit();
-		}
+   public void jrEngageDialogDidFailToShowWithError(JREngageError error) {
+      setSessionCookie("");
+      pd.dismiss();
+      toastMessage(getString(R.string.openfail_message) + ":" + error.getMessage());
 
-		public String getSessionCookie() {
-			return(preferences.getString("Session", ""));
-		}
+   }
 
-		
+   public void jrAuthenticationDidSucceedForUser(JRDictionary authInfo, String provider) {
+   }
 
-		public String getShacIUrl() {
-			return(preferences.getString("IURL", "http://192.168.1.80"));
-		}
+   public void jrAuthenticationDidReachTokenUrl(String tokenUrl, String tokenUrlPayload, String provider) {
+   }
 
-		public String getShacEUrl() {
-			return(preferences.getString("EURL", "http://enter.house4hack.co.za"));
-		}
-		public String getUrlPolicy() {
-			return(preferences.getString("URLPOLICY","3"));
-		}
-				
-		private boolean isInternal(){
-			String ip = getLocalIpAddress();
-			if(ip.startsWith(getLocalIPStart())){
-                   return true;}
-			else {
-				  return false;
-			}
-		}
-		
-	    private String getShacUrl() {
-			int p = Integer.parseInt(getUrlPolicy());
-			switch (p) {
-			case 1:
-				return(getShacIUrl());
-			case 2:
-				return(getShacEUrl());
-			case 3:
-				if(isInternal()){
-					return(getShacIUrl());
-				}else{
-				   return(getShacEUrl());
-				}
-			default:
-				break;
-			}
-			return "";
-		}
+   public void jrAuthenticationDidReachTokenUrl(String tokenUrl, HttpResponseHeaders response, String tokenUrlPayload, String provider) {
+      Cookie[] cookies = response.getCookies();
+      if (cookies.length > 0) {
+         Log.d("SHAC", cookies[0].getValue());
+         setSessionCookie(cookies[0].getValue());
+         toastMessage(getString(R.string.open_success));
+      }
+      pd.dismiss();
+   }
 
-		private String getLocalIPStart() {
-			return(preferences.getString("LOCALIPSTART","192.168.1"));
-		}	    
+   public void jrAuthenticationDidNotComplete() {
+      pd.dismiss();
+      toastMessage(getString(R.string.openfail_message));
+   }
+
+   public void jrAuthenticationDidFailWithError(JREngageError error, String provider) {
+      setSessionCookie("");
+      pd.dismiss();
+      toastMessage(getString(R.string.openfail_message) + ":" + error.getMessage());
+
+   }
+
+   public void jrAuthenticationCallToTokenUrlDidFail(String tokenUrl, JREngageError error, String provider) {
+      setSessionCookie("");
+      pd.dismiss();
+      toastMessage(getString(R.string.openfail_message) + ":" + error.getMessage());
+
+   }
+
+   public void jrSocialDidNotCompletePublishing() {
+   }
+
+   public void jrSocialDidCompletePublishing() {
+   }
+
+   public void jrSocialDidPublishJRActivity(JRActivityObject activity, String provider) {
+   }
+
+   public void jrSocialPublishJRActivityDidFail(JRActivityObject activity, JREngageError error, String provider) {
+   }
+
+   public void setSessionCookie(String sessionCookie) {
+      Editor edit = preferences.edit();
+      edit.putString("Session", sessionCookie);
+      edit.commit();
+   }
+
+   public String getSessionCookie() {
+      return (preferences.getString("Session", ""));
+   }
+
+   public String getShacIUrl() {
+      return (preferences.getString("IURL", "http://192.168.1.80"));
+   }
+
+   public String getShacEUrl() {
+      return (preferences.getString("EURL", "http://enter.house4hack.co.za"));
+   }
+
+   public String getUrlPolicy() {
+      return (preferences.getString("URLPOLICY", "3"));
+   }
+
+   private boolean isInternal() {
+      String ip = getLocalIpAddress();
+      if (ip.startsWith(getLocalIPStart())) {
+         return true;
+      } else {
+         return false;
+      }
+   }
+
+   private String getShacUrl() {
+      int p = Integer.parseInt(getUrlPolicy());
+      switch (p) {
+         case 1:
+            return (getShacIUrl());
+         case 2:
+            return (getShacEUrl());
+         case 3:
+            if (isInternal()) {
+               return (getShacIUrl());
+            } else {
+               return (getShacEUrl());
+            }
+         default:
+            break;
+      }
+      return "";
+   }
+
+   private String getLocalIPStart() {
+      return (preferences.getString("LOCALIPSTART", "192.168.1"));
+   }
 
 }
