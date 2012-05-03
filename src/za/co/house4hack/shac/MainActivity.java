@@ -48,6 +48,17 @@ public class MainActivity extends Activity implements JREngageDelegate {
         pd = new ProgressDialog(this);
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
+        Intent intent = getIntent();
+        if(intent.getAction().equals(getString(R.string.openaction))){
+        	String access = intent.getStringExtra("access");
+        	if(access.equalsIgnoreCase("door")){
+        		openDoor(null);
+        	}else  if(access.equalsIgnoreCase("gate")){
+        		openGate(null);
+        	}
+        	
+        }
+        
     }
     
 	private void opentaskExecute(String url){
