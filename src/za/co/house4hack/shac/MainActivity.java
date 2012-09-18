@@ -93,6 +93,7 @@ public class MainActivity extends Activity implements JREngageDelegate {
 				if (result == LOGIN_RESULT) {
 					toastMessage(R.string.pleaseloginfirst);
 				} else {
+					Log.d("SHAC", result);
 					toastMessage(result);
 				}
 			}
@@ -145,12 +146,15 @@ public class MainActivity extends Activity implements JREngageDelegate {
 		URL urlObject = new URL(url);
 		HttpURLConnection http = (HttpURLConnection) urlObject.openConnection();
 		http.setRequestMethod("GET");
+		http.setRequestProperty ( "User-agent", "Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.2 (KHTML, like Gecko) Ubuntu/10.04 Chromium/15.0.874.106 Chrome/15.0.874.106 Safari/535.2");
 		// http.setRequestMethod("POST");
 		// http.setDoOutput(true);
 		http.setReadTimeout(15000);
 
 		http.setRequestProperty("Cookie", "session_id_init="
 				+ getSessionCookie());
+		
+		
 		http.connect();
 		/*
 		 * OutputStreamWriter wr = new
@@ -185,6 +189,7 @@ public class MainActivity extends Activity implements JREngageDelegate {
 	}
 
 	public String getLocalIpAddress() {
+		String ipaddress="";
 		try {
 			for (Enumeration<NetworkInterface> en = NetworkInterface
 					.getNetworkInterfaces(); en.hasMoreElements();) {
@@ -193,14 +198,15 @@ public class MainActivity extends Activity implements JREngageDelegate {
 						.getInetAddresses(); enumIpAddr.hasMoreElements();) {
 					InetAddress inetAddress = enumIpAddr.nextElement();
 					if (!inetAddress.isLoopbackAddress()) {
-						return inetAddress.getHostAddress().toString();
+						ipaddress =  inetAddress.getHostAddress().toString();
 					}
 				}
 			}
 		} catch (SocketException ex) {
 			Log.e("SHAC", ex.toString());
 		}
-		return "";
+		Log.d("SHAC","ipaddress:"+ipaddress);
+		return ipaddress;
 	}
 
 	@Override
@@ -342,31 +348,43 @@ public class MainActivity extends Activity implements JREngageDelegate {
 	}
 
 	private boolean isInternal() {
+		boolean result = false;
 		String ip = getLocalIpAddress();
 		if (ip.startsWith(getLocalIPStart())) {
-			return true;
+			result = true;
 		} else {
-			return false;
+			result = false;
 		}
+		if(result){
+			Log.d("SHAC","IsInternal = True");
+		} else {
+			Log.d("SHAC","IsInternal = False");
+		}
+		return result;
 	}
 
 	private String getShacUrl() {
+		String url = "";
 		int p = Integer.parseInt(getUrlPolicy());
 		switch (p) {
 		case 1:
-			return (getShacIUrl());
+			url = getShacIUrl();
+			break;
 		case 2:
-			return (getShacEUrl());
+			url = getShacEUrl();
+			break;
 		case 3:
 			if (isInternal()) {
-				return (getShacIUrl());
+				url = getShacIUrl();
 			} else {
-				return (getShacEUrl());
+				url = getShacEUrl();
 			}
+			break;
 		default:
 			break;
 		}
-		return "";
+		Log.d("SHAC","URL="+url);		
+		return url;
 	}
 
 	private String getLocalIPStart() {
