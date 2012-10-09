@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Enumeration;
@@ -64,9 +63,7 @@ public class MainActivity extends Activity {
          } else if (access.equalsIgnoreCase("gate")) {
             openGate(null);
          }
-
       }
-
    }
 
    private void opentaskExecute(String url) {
@@ -145,11 +142,13 @@ public class MainActivity extends Activity {
       }
    }
 
-   public String getData(String url) throws IOException {
-
+   public String getData(final String url) throws IOException {
       URL urlObject = new URL(url);
       HttpURLConnection http = (HttpURLConnection) urlObject.openConnection();
       http.setRequestMethod("GET");
+      http.setRequestMethod("GET");
+      http.setRequestProperty("User-agent",
+               "Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.2 (KHTML, like Gecko) Ubuntu/10.04 Chromium/15.0.874.106 Chrome/15.0.874.106 Safari/535.2");
       // http.setRequestMethod("POST");
       // http.setDoOutput(true);
       http.setReadTimeout(15000);
@@ -193,7 +192,7 @@ public class MainActivity extends Activity {
          menu.findItem(R.id.logout).setVisible(loggedIn);
       } catch (Exception e) {
       }
-      
+
       return true;
    }
 
@@ -203,11 +202,14 @@ public class MainActivity extends Activity {
             NetworkInterface intf = en.nextElement();
             for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
                InetAddress inetAddress = enumIpAddr.nextElement();
-               if (!inetAddress.isLoopbackAddress()) { return inetAddress.getHostAddress().toString(); }
+               if (!inetAddress.isLoopbackAddress() && !inetAddress.isLinkLocalAddress()) {
+                  // return inetAddress.getHostAddress().toString();
+                  return inetAddress.getHostAddress();
+               }
             }
          }
-      } catch (SocketException ex) {
-         Log.e("SHAC", ex.toString());
+      } catch (Exception e) {
+         Log.d("SHAC", "Error getting local ip", e);
       }
       return "";
    }
@@ -251,16 +253,19 @@ public class MainActivity extends Activity {
       menu.clear();
       onCreateOptionsMenu(menu);
    }
-   
+
    @Override
    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
       if (requestCode == AUTH_REQUEST_CODE && resultCode == RESULT_OK) {
+         if (getSessionCookie().trim().length() == 0) {
+            pickAccount();
+         }
          updateMenu();
       }
-      
+
       super.onActivityResult(requestCode, resultCode, data);
    }
-   
+
    private void pickAccount() {
       final Activity context = this;
       new Thread() {
@@ -275,25 +280,21 @@ public class MainActivity extends Activity {
 
             if (names.length > 1) {
                final String[] accountNames = names;
-               
+
                runOnUiThread(new Runnable() {
                   @Override
                   public void run() {
-                     new AlertDialog.Builder(context)
-                     .setTitle(R.string.title_select_account)
-                     .setItems(accountNames, new OnClickListener() {
+                     new AlertDialog.Builder(context).setTitle(R.string.title_select_account).setItems(accountNames, new OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int pos) {
                            doOAuth(context, accountNames[pos]);
                         }
-                     })
-                     .setOnCancelListener(new OnCancelListener() {
+                     }).setOnCancelListener(new OnCancelListener() {
                         @Override
                         public void onCancel(DialogInterface arg0) {
                            pd.dismiss();
                         }
-                     })
-                     .create().show();
+                     }).create().show();
                   }
                });
             } else if (names.length == 0) {
@@ -309,14 +310,10 @@ public class MainActivity extends Activity {
          }
 
          public void doOAuth(final Activity context, final String accountName) {
-            String G_PLUS_SCOPE = 
-                     "oauth2:https://www.googleapis.com/auth/plus.me ";
-            String USERINFO_SCOPE =   
-                     "https://www.googleapis.com/auth/userinfo.profile ";
-            String USERINFO_EMAIL =   
-                     "https://www.googleapis.com/auth/userinfo.email ";
-            
-            
+            String G_PLUS_SCOPE = "oauth2:https://www.googleapis.com/auth/plus.me ";
+            String USERINFO_SCOPE = "https://www.googleapis.com/auth/userinfo.profile ";
+            String USERINFO_EMAIL = "https://www.googleapis.com/auth/userinfo.email ";
+
             String SCOPES = G_PLUS_SCOPE + USERINFO_EMAIL;
             try {
                setSessionCookie(GoogleAuthUtil.getToken(context, accountName, SCOPES));
@@ -344,7 +341,7 @@ public class MainActivity extends Activity {
                   }
                });
             }
-            
+
             updateMenu();
             pd.dismiss();
          }
