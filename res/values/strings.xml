@@ -2,23 +2,20 @@
 <resources>
 
     <string name="app_name">SHAC</string>
-<string name="opengate_message">Opening the gate</string>
-<string name="opendoor_message">Opening the door</string>
-<string name="openfail_message">Broken:</string>
-<string name="settings_shortcut">Preferences</string>
-<string name="settings_label">Preferences</string>
-<string name="settings_title">Preferences</string>
-<string name="login_shortcut">Sign in</string>
-<string name="login_label">Sign in</string>
-<string name="login_title">Sign in</string>
-<string name="open_success">Success</string>
-<string name="pleaseloginfirst">Please login first</string>
-<string name="busylogin">Signing in</string>
-    
-<string name="openaction">za.co.house4hack.shac.OPEN</string>    
-    
+    <string name="opengate_message">Opening the gate</string>
+    <string name="opendoor_message">Opening the door</string>
+    <string name="openfail_message">Broken:</string>
+    <string name="settings_shortcut">Preferences</string>
+    <string name="settings_label">Preferences</string>
+    <string name="settings_title">Preferences</string>
+    <string name="login_shortcut">Sign in</string>
+    <string name="login_label">Sign in</string>
+    <string name="login_title">Sign in</string>
+    <string name="open_success">Success</string>
+    <string name="pleaseloginfirst">Please login first</string>
+    <string name="busylogin">Signing in</string>
+    <string name="openaction">za.co.house4hack.shac.OPEN</string>
     <string name="directions_label">Drive there</string>
     <string name="map_label">Show in Map</string>
-    <string name="open_success">Success</string>
 
 </resources>

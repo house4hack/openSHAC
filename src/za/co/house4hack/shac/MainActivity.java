@@ -10,14 +10,15 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Enumeration;
 
-import org.apache.http.cookie.Cookie;
-
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -29,348 +30,312 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.janrain.android.engage.JREngage;
-import com.janrain.android.engage.JREngageDelegate;
-import com.janrain.android.engage.JREngageError;
-import com.janrain.android.engage.net.async.HttpResponseHeaders;
-import com.janrain.android.engage.types.JRActivityObject;
-import com.janrain.android.engage.types.JRDictionary;
+import com.google.android.gms.auth.GoogleAuthException;
+import com.google.android.gms.auth.GoogleAuthUtil;
+import com.google.android.gms.auth.GooglePlayServicesAvailabilityException;
+import com.google.android.gms.auth.UserRecoverableAuthException;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 
-public class MainActivity extends Activity implements JREngageDelegate {
-	ProgressDialog pd;
-	protected static final String LOGIN_RESULT = "Login";
-	private SharedPreferences preferences;
+public class MainActivity extends Activity {
+   ProgressDialog pd;
+   protected static final String LOGIN_RESULT = "Login";
+   private static final int AUTH_REQUEST_CODE = 0;
+   private SharedPreferences preferences;
 
-	// private JREngageDelegate mEngageDelegate = ...;
+   // private JREngageDelegate mEngageDelegate = ...;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main);
-		pd = new ProgressDialog(this);
-		preferences = PreferenceManager.getDefaultSharedPreferences(this);
+   @Override
+   public void onCreate(Bundle savedInstanceState) {
+      super.onCreate(savedInstanceState);
+      setContentView(R.layout.main);
+      pd = new ProgressDialog(this);
+      preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-		Intent intent = getIntent();
-		if (intent.getAction().equals(getString(R.string.openaction))) {
-			String access = intent.getStringExtra("access");
-			if (access.equalsIgnoreCase("door")) {
-				openDoor(null);
-			} else if (access.equalsIgnoreCase("gate")) {
-				openGate(null);
-			}
+      Intent intent = getIntent();
+      if (intent.getAction().equals(getString(R.string.openaction))) {
+         String access = intent.getStringExtra("access");
+         if (access.equalsIgnoreCase("door")) {
+            openDoor(null);
+         } else if (access.equalsIgnoreCase("gate")) {
+            openGate(null);
+         }
 
-		}
+      }
 
-	}
+   }
 
-	private void opentaskExecute(String url) {
-		AsyncTask<String, Void, String> opentask = new AsyncTask<String, Void, String>() {
+   private void opentaskExecute(String url) {
+      AsyncTask<String, Void, String> opentask = new AsyncTask<String, Void, String>() {
 
-			@Override
-			protected String doInBackground(String... params) {
-				String s = "";
-				Log.d("SHAC", "Session cookie is:"
-						+ getSessionCookie().length());
-				try {
-					if (getSessionCookie().length() == 0 && !isInternal()) {
-						s = LOGIN_RESULT;
-					} else {
-						String dest = params[0];
-						s = getData(dest);
-					}
-				} catch (IOException e) {
-					s = getString(R.string.openfail_message) + ":"
-							+ e.getMessage();
-					Log.e("SHAC", "Error opening", e);
-				}
-				return s;
-			}
+         @Override
+         protected String doInBackground(String... params) {
+            String s = "";
+            // Log.d("SHAC", "Session cookie is:" +
+            // getSessionCookie().length());
+            try {
+               if (getSessionCookie().length() == 0 && !isInternal()) {
+                  s = LOGIN_RESULT;
+               } else {
+                  String dest = params[0];
+                  s = getData(dest);
+               }
+            } catch (IOException e) {
+               s = getString(R.string.openfail_message) + ":" + e.getMessage();
+               Log.e("SHAC", "Error opening", e);
+            }
+            return s;
+         }
 
-			@Override
-			protected void onPostExecute(String result) {
-				super.onPostExecute(result);
-				pd.dismiss();
-				if (result == LOGIN_RESULT) {
-					toastMessage(R.string.pleaseloginfirst);
-				} else {
-					toastMessage(result);
-				}
-			}
+         @Override
+         protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            pd.dismiss();
+            if (result == LOGIN_RESULT) {
+               toastMessage(R.string.pleaseloginfirst);
+            } else {
+               toastMessage(result);
+            }
+         }
 
-		};
-		opentask.execute(url);
+      };
+      opentask.execute(url);
 
-	}
+   }
 
-	public void openDoor(View v) {
-		Log.d("SHAC", "Door");
+   public void openDoor(View v) {
+      Log.d("SHAC", "Door");
 
-		pd.setMessage(getResources().getString(R.string.opendoor_message));
-		pd.show();
-		if (isInternal()) {
-			opentaskExecute(getShacIUrl() + "/door");
-		} else {
-			opentaskExecute(getShacEUrl() + "/init/android/door");
-		}
-	}
+      pd.setMessage(getResources().getString(R.string.opendoor_message));
+      pd.show();
+      if (isInternal()) {
+         opentaskExecute(getShacIUrl() + "/door");
+      } else {
+         opentaskExecute(getShacEUrl() + "/init/android/door");
+      }
+   }
 
-	public void openGate(View v) {
-		Log.d("SHAC", "Gate");
-		pd.setMessage(getResources().getString(R.string.opengate_message));
-		pd.show();
-		if (isInternal()) {
-			opentaskExecute(getShacIUrl() + "/gate");
-		} else {
-			opentaskExecute(getShacEUrl() + "/init/android/gate");
-		}
-	}
+   public void openGate(View v) {
+      Log.d("SHAC", "Gate");
+      pd.setMessage(getResources().getString(R.string.opengate_message));
+      pd.show();
+      if (isInternal()) {
+         opentaskExecute(getShacIUrl() + "/gate");
+      } else {
+         opentaskExecute(getShacEUrl() + "/init/android/gate");
+      }
+   }
 
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
-		super.onConfigurationChanged(newConfig);
+   public String getData(String url) throws IOException {
 
-		// Checks the orientation of the screen
-		if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-			setContentView(R.layout.main_landscape);
-			Log.d("SHAC", "Landscape");
-		} else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-			setContentView(R.layout.main);
-			Log.d("SHAC", "Portrait");
+      URL urlObject = new URL(url);
+      HttpURLConnection http = (HttpURLConnection) urlObject.openConnection();
+      http.setRequestMethod("GET");
+      // http.setRequestMethod("POST");
+      // http.setDoOutput(true);
+      http.setReadTimeout(15000);
 
-		}
-	}
+      http.setRequestProperty("Cookie", "token=" + getSessionCookie());
+      http.connect();
+      /*
+       * OutputStreamWriter wr = new
+       * OutputStreamWriter(http.getOutputStream()); String data =
+       * URLEncoder.encode("_formname", "UTF-8") + "=" +
+       * URLEncoder.encode("gate", "UTF-8"); wr.write(data); wr.flush();
+       */
 
-	public String getData(String url) throws IOException {
+      StringBuffer sb = new StringBuffer();
 
-		URL urlObject = new URL(url);
-		HttpURLConnection http = (HttpURLConnection) urlObject.openConnection();
-		http.setRequestMethod("GET");
-		// http.setRequestMethod("POST");
-		// http.setDoOutput(true);
-		http.setReadTimeout(15000);
+      if (http.getResponseCode() == HttpURLConnection.HTTP_OK) {
+         InputStream is = http.getInputStream();
+         int c;
+         while ((c = is.read()) > 0) {
+            sb.append((char) c);
+         }
+         is.close();
+      } else {
 
-		http.setRequestProperty("Cookie", "session_id_init="
-				+ getSessionCookie());
-		http.connect();
-		/*
-		 * OutputStreamWriter wr = new
-		 * OutputStreamWriter(http.getOutputStream()); String data =
-		 * URLEncoder.encode("_formname", "UTF-8") + "=" +
-		 * URLEncoder.encode("gate", "UTF-8"); wr.write(data); wr.flush();
-		 */
+      }
+      String retVal = sb.toString();
 
-		StringBuffer sb = new StringBuffer();
+      return (retVal);
+   }
 
-		if (http.getResponseCode() == HttpURLConnection.HTTP_OK) {
-			InputStream is = http.getInputStream();
-			int c;
-			while ((c = is.read()) > 0) {
-				sb.append((char) c);
-			}
-			is.close();
-		} else {
+   @Override
+   public boolean onCreateOptionsMenu(Menu menu) {
+      super.onCreateOptionsMenu(menu);
+      MenuInflater inflater = getMenuInflater();
+      inflater.inflate(R.menu.menu, menu);
+      return true;
+   }
 
-		}
-		String retVal = sb.toString();
+   public String getLocalIpAddress() {
+      try {
+         for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+            NetworkInterface intf = en.nextElement();
+            for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+               InetAddress inetAddress = enumIpAddr.nextElement();
+               if (!inetAddress.isLoopbackAddress()) { return inetAddress.getHostAddress().toString(); }
+            }
+         }
+      } catch (SocketException ex) {
+         Log.e("SHAC", ex.toString());
+      }
+      return "";
+   }
 
-		return (retVal);
-	}
+   @Override
+   public boolean onOptionsItemSelected(MenuItem item) {
+      if (item.getItemId() == R.id.settings) {
+         startActivity(new Intent(this, PreferencesActivity.class));
+         return true;
+      }
+      if (item.getItemId() == R.id.login) {
+         pd.setMessage(getString(R.string.busylogin));
+         pd.show();
+         pickAccount();
+         return true;
+      }
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		super.onCreateOptionsMenu(menu);
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.menu, menu);
-		return true;
-	}
+      if (item.getItemId() == R.id.directions) {
+         String address = Settings.getSettings(this).getAddress();
+         String name = Settings.getSettings(this).getName();
+         Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q=" + URLEncoder.encode(address + "(" + name + ")")));
+         startActivity(i);
+      }
 
-	public String getLocalIpAddress() {
-		try {
-			for (Enumeration<NetworkInterface> en = NetworkInterface
-					.getNetworkInterfaces(); en.hasMoreElements();) {
-				NetworkInterface intf = en.nextElement();
-				for (Enumeration<InetAddress> enumIpAddr = intf
-						.getInetAddresses(); enumIpAddr.hasMoreElements();) {
-					InetAddress inetAddress = enumIpAddr.nextElement();
-					if (!inetAddress.isLoopbackAddress()) {
-						return inetAddress.getHostAddress().toString();
-					}
-				}
-			}
-		} catch (SocketException ex) {
-			Log.e("SHAC", ex.toString());
-		}
-		return "";
-	}
+      if (item.getItemId() == R.id.map) {
+         String address = Settings.getSettings(this).getAddress();
+         String name = Settings.getSettings(this).getName();
+         Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q=" + URLEncoder.encode(address + "(" + name + ")")));
+         startActivity(i);
+      }
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == R.id.settings) {
-			startActivity(new Intent(this, PreferencesActivity.class));
-			return true;
-		}
-		if (item.getItemId() == R.id.login) {
-			pd.setMessage(getString(R.string.busylogin));
-			pd.show();
-			janrainLogin();
-			return true;
-		}
+      return false;
+   }
 
-		if (item.getItemId() == R.id.directions) {
-			String address = Settings.getSettings(this).getAddress();
-			String name = Settings.getSettings(this).getName();
-			Intent i = new Intent(Intent.ACTION_VIEW,
-					Uri.parse("google.navigation:q="
-							+ URLEncoder.encode(address + "(" + name + ")")));
-			startActivity(i);
-		}
+   private void pickAccount() {
+      final Activity context = this;
+      new Thread() {
+         @Override
+         public void run() {
+            AccountManager mAccountManager = AccountManager.get(context);
+            Account[] accounts = mAccountManager.getAccountsByType(GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE);
+            String[] names = new String[accounts.length];
+            for (int i = 0; i < names.length; i++) {
+               names[i] = accounts[i].name;
+            }
 
-		if (item.getItemId() == R.id.map) {
-			String address = Settings.getSettings(this).getAddress();
-			String name = Settings.getSettings(this).getName();
-			Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q="
-					+ URLEncoder.encode(address + "(" + name + ")")));
-			startActivity(i);
-		}
+            final String accountName = names[0];
+            String G_PLUS_SCOPE = 
+                     "oauth2:https://www.googleapis.com/auth/plus.me";
+            String USERINFO_SCOPE =   
+                     "https://www.googleapis.com/auth/userinfo.profile";
+            String USERINFO_EMAIL =   
+                     "https://www.googleapis.com/auth/userinfo.email";
+            
+            
+            String SCOPES = "oauth2:https://www.googleapis.com/auth/userinfo.email";
+            
+            runOnUiThread(new Runnable() {
+               @Override
+               public void run() {
+                  Toast.makeText(context, "Using " + accountName, Toast.LENGTH_LONG).show();
+               }
+            });
 
-		return false;
-	}
+            try {
+               setSessionCookie(GoogleAuthUtil.getToken(context, accountName, SCOPES));
+            } catch (GooglePlayServicesAvailabilityException playEx) {
+               Dialog dialog = GooglePlayServicesUtil.getErrorDialog(playEx.getConnectionStatusCode(), context, AUTH_REQUEST_CODE);
+               // Use the dialog to present to the user.
+            } catch (UserRecoverableAuthException recoverableException) {
+               Intent recoveryIntent = recoverableException.getIntent();
+               context.startActivityForResult(recoveryIntent, AUTH_REQUEST_CODE);
+               // Use the intent in a custom dialog or just
+               // startActivityForResult.
+            } catch (final GoogleAuthException authEx) {
+               // This is likely unrecoverable.
+               runOnUiThread(new Runnable() {
+                  @Override
+                  public void run() {
+                     Toast.makeText(context, "Unrecoverable authentication exception: " + authEx.getMessage(), Toast.LENGTH_LONG).show();
+                  }
+               });
+            } catch (final IOException ioEx) {
+               runOnUiThread(new Runnable() {
+                  @Override
+                  public void run() {
+                     Toast.makeText(context, "transient error encountered: " + ioEx.getMessage(), Toast.LENGTH_LONG).show();
+                  }
+               });
+            }
+            
+            pd.dismiss();
+         }
+      }.start();
 
-	private void janrainLogin() {
-		setSessionCookie("");
-		String appId = "ggacbghpjlnhjpnfgdem";
-		String tokenUrl = getShacUrl() + "/init/default/user/login";
-		JREngage jrEngage = JREngage.initInstance(this, appId, tokenUrl, this);
-		jrEngage.showAuthenticationDialog();
+   }
 
-	}
+   private void toastMessage(String message) {
+      Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
+   }
 
-	private void toastMessage(String message) {
-		Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
-	}
+   private void toastMessage(int message) {
+      Toast.makeText(MainActivity.this, getString(message), Toast.LENGTH_LONG).show();
+   }
 
-	private void toastMessage(int message) {
-		Toast.makeText(MainActivity.this, getString(message), Toast.LENGTH_LONG)
-				.show();
-	}
+   public void setSessionCookie(String token) {
+      Editor edit = preferences.edit();
+      edit.putString("token", token);
+      edit.commit();
+   }
 
-	public void jrEngageDialogDidFailToShowWithError(JREngageError error) {
-		setSessionCookie("");
-		pd.dismiss();
-		toastMessage(getString(R.string.openfail_message) + ":"
-				+ error.getMessage());
+   public String getSessionCookie() {
+      return (preferences.getString("token", ""));
+   }
 
-	}
+   public String getShacIUrl() {
+      return (preferences.getString("IURL", "http://192.168.1.80"));
+   }
 
-	public void jrAuthenticationDidSucceedForUser(JRDictionary authInfo,
-			String provider) {
-	}
+   public String getShacEUrl() {
+      return (preferences.getString("EURL", "http://enter.house4hack.co.za"));
+   }
 
-	public void jrAuthenticationDidReachTokenUrl(String tokenUrl,
-			String tokenUrlPayload, String provider) {
-	}
+   public String getUrlPolicy() {
+      return (preferences.getString("URLPOLICY", "3"));
+   }
 
-	public void jrAuthenticationDidReachTokenUrl(String tokenUrl,
-			HttpResponseHeaders response, String tokenUrlPayload,
-			String provider) {
-		Cookie[] cookies = response.getCookies();
-		if (cookies.length > 0) {
-			Log.d("SHAC", cookies[0].getValue());
-			setSessionCookie(cookies[0].getValue());
-			toastMessage(getString(R.string.open_success));
-		}
-		pd.dismiss();
-	}
+   private boolean isInternal() {
+      String ip = getLocalIpAddress();
+      if (ip.startsWith(getLocalIPStart())) {
+         return true;
+      } else {
+         return false;
+      }
+   }
 
-	public void jrAuthenticationDidNotComplete() {
-		pd.dismiss();
-		toastMessage(getString(R.string.openfail_message));
-	}
+   private String getShacUrl() {
+      int p = Integer.parseInt(getUrlPolicy());
+      switch (p) {
+         case 1:
+            return (getShacIUrl());
+         case 2:
+            return (getShacEUrl());
+         case 3:
+            if (isInternal()) {
+               return (getShacIUrl());
+            } else {
+               return (getShacEUrl());
+            }
+         default:
+            break;
+      }
+      return "";
+   }
 
-	public void jrAuthenticationDidFailWithError(JREngageError error,
-			String provider) {
-		setSessionCookie("");
-		pd.dismiss();
-		toastMessage(getString(R.string.openfail_message) + ":"
-				+ error.getMessage());
-
-	}
-
-	public void jrAuthenticationCallToTokenUrlDidFail(String tokenUrl,
-			JREngageError error, String provider) {
-		setSessionCookie("");
-		pd.dismiss();
-		toastMessage(getString(R.string.openfail_message) + ":"
-				+ error.getMessage());
-
-	}
-
-	public void jrSocialDidNotCompletePublishing() {
-	}
-
-	public void jrSocialDidCompletePublishing() {
-	}
-
-	public void jrSocialDidPublishJRActivity(JRActivityObject activity,
-			String provider) {
-	}
-
-	public void jrSocialPublishJRActivityDidFail(JRActivityObject activity,
-			JREngageError error, String provider) {
-	}
-
-	public void setSessionCookie(String sessionCookie) {
-		Editor edit = preferences.edit();
-		edit.putString("Session", sessionCookie);
-		edit.commit();
-	}
-
-	public String getSessionCookie() {
-		return (preferences.getString("Session", ""));
-	}
-
-	public String getShacIUrl() {
-		return (preferences.getString("IURL", "http://192.168.1.80"));
-	}
-
-	public String getShacEUrl() {
-		return (preferences.getString("EURL", "http://enter.house4hack.co.za"));
-	}
-
-	public String getUrlPolicy() {
-		return (preferences.getString("URLPOLICY", "3"));
-	}
-
-	private boolean isInternal() {
-		String ip = getLocalIpAddress();
-		if (ip.startsWith(getLocalIPStart())) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	private String getShacUrl() {
-		int p = Integer.parseInt(getUrlPolicy());
-		switch (p) {
-		case 1:
-			return (getShacIUrl());
-		case 2:
-			return (getShacEUrl());
-		case 3:
-			if (isInternal()) {
-				return (getShacIUrl());
-			} else {
-				return (getShacEUrl());
-			}
-		default:
-			break;
-		}
-		return "";
-	}
-
-	private String getLocalIPStart() {
-		return (preferences.getString("LOCALIPSTART", "192.168.1"));
-	}
+   private String getLocalIPStart() {
+      return (preferences.getString("LOCALIPSTART", "192.168.1"));
+   }
 
 }
