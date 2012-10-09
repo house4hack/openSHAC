@@ -257,9 +257,9 @@ public class MainActivity extends Activity {
    @Override
    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
       if (requestCode == AUTH_REQUEST_CODE && resultCode == RESULT_OK) {
-         if (getSessionCookie().trim().length() == 0) {
-            pickAccount();
-         }
+//         if (getSessionCookie().trim().length() == 0) {
+//            pickAccount();
+//         }
          updateMenu();
       }
 
