@@ -234,7 +234,7 @@ public class MainActivity extends Activity {
                      "https://www.googleapis.com/auth/userinfo.email";
             
             
-            String SCOPES = "oauth2:https://www.googleapis.com/auth/userinfo.email";
+            String SCOPES = "oauth2:https://www.googleapis.com/auth/userinfo.profile " + USERINFO_EMAIL;
             
             runOnUiThread(new Runnable() {
                @Override
