@@ -10,6 +10,7 @@
     <string name="settings_title">Preferences</string>
     <string name="login_shortcut">Sign in</string>
     <string name="login_label">Sign in</string>
+    <string name="logout_label">Sign out</string>
     <string name="login_title">Sign in</string>
     <string name="open_success">Success</string>
     <string name="pleaseloginfirst">Please login first</string>
@@ -17,4 +18,8 @@
     <string name="openaction">za.co.house4hack.shac.OPEN</string>
     <string name="directions_label">Drive there</string>
     <string name="map_label">Show in Map</string>
+    <string name="title_select_account">Select Account</string>
+    <string name="btn_ok">Ok</string>
+    <string name="err_no_accounts">No Google accounts found! Please log into Google Play first.</string>
+    
 </resources>

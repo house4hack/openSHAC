@@ -13,12 +13,16 @@ import java.util.Enumeration;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -41,6 +45,7 @@ public class MainActivity extends Activity {
    protected static final String LOGIN_RESULT = "Login";
    private static final int AUTH_REQUEST_CODE = 0;
    private SharedPreferences preferences;
+   Menu menu = null;
 
    // private JREngageDelegate mEngageDelegate = ...;
 
@@ -125,6 +130,21 @@ public class MainActivity extends Activity {
       }
    }
 
+   @Override
+   public void onConfigurationChanged(Configuration newConfig) {
+      super.onConfigurationChanged(newConfig);
+
+      // Checks the orientation of the screen
+      if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+         setContentView(R.layout.main_landscape);
+         Log.d("SHAC", "Landscape");
+      } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+         setContentView(R.layout.main);
+         Log.d("SHAC", "Portrait");
+
+      }
+   }
+
    public String getData(String url) throws IOException {
 
       URL urlObject = new URL(url);
@@ -163,8 +183,17 @@ public class MainActivity extends Activity {
    @Override
    public boolean onCreateOptionsMenu(Menu menu) {
       super.onCreateOptionsMenu(menu);
+      this.menu = menu;
       MenuInflater inflater = getMenuInflater();
       inflater.inflate(R.menu.menu, menu);
+
+      boolean loggedIn = getSessionCookie().trim().length() > 0;
+      try {
+         menu.findItem(R.id.login).setVisible(!loggedIn);
+         menu.findItem(R.id.logout).setVisible(loggedIn);
+      } catch (Exception e) {
+      }
+      
       return true;
    }
 
@@ -195,6 +224,11 @@ public class MainActivity extends Activity {
          pickAccount();
          return true;
       }
+      if (item.getItemId() == R.id.logout) {
+         setSessionCookie("");
+         updateMenu();
+         return true;
+      }
 
       if (item.getItemId() == R.id.directions) {
          String address = Settings.getSettings(this).getAddress();
@@ -213,6 +247,20 @@ public class MainActivity extends Activity {
       return false;
    }
 
+   private void updateMenu() {
+      menu.clear();
+      onCreateOptionsMenu(menu);
+   }
+   
+   @Override
+   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+      if (requestCode == AUTH_REQUEST_CODE && resultCode == RESULT_OK) {
+         updateMenu();
+      }
+      
+      super.onActivityResult(requestCode, resultCode, data);
+   }
+   
    private void pickAccount() {
       final Activity context = this;
       new Thread() {
@@ -225,24 +273,51 @@ public class MainActivity extends Activity {
                names[i] = accounts[i].name;
             }
 
-            final String accountName = names[0];
-            String G_PLUS_SCOPE = 
-                     "oauth2:https://www.googleapis.com/auth/plus.me";
-            String USERINFO_SCOPE =   
-                     "https://www.googleapis.com/auth/userinfo.profile";
-            String USERINFO_EMAIL =   
-                     "https://www.googleapis.com/auth/userinfo.email";
-            
-            
-            String SCOPES = "oauth2:https://www.googleapis.com/auth/userinfo.profile";
-            
-            runOnUiThread(new Runnable() {
-               @Override
-               public void run() {
-                  Toast.makeText(context, "Using " + accountName, Toast.LENGTH_LONG).show();
-               }
-            });
+            if (names.length > 1) {
+               final String[] accountNames = names;
+               
+               runOnUiThread(new Runnable() {
+                  @Override
+                  public void run() {
+                     new AlertDialog.Builder(context)
+                     .setTitle(R.string.title_select_account)
+                     .setItems(accountNames, new OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int pos) {
+                           doOAuth(context, accountNames[pos]);
+                        }
+                     })
+                     .setOnCancelListener(new OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface arg0) {
+                           pd.dismiss();
+                        }
+                     })
+                     .create().show();
+                  }
+               });
+            } else if (names.length == 0) {
+               runOnUiThread(new Runnable() {
+                  @Override
+                  public void run() {
+                     Toast.makeText(context, R.string.err_no_accounts, Toast.LENGTH_LONG).show();
+                  }
+               });
+            } else {
+               doOAuth(context, names[0]);
+            }
+         }
 
+         public void doOAuth(final Activity context, final String accountName) {
+            String G_PLUS_SCOPE = 
+                     "oauth2:https://www.googleapis.com/auth/plus.me ";
+            String USERINFO_SCOPE =   
+                     "https://www.googleapis.com/auth/userinfo.profile ";
+            String USERINFO_EMAIL =   
+                     "https://www.googleapis.com/auth/userinfo.email ";
+            
+            
+            String SCOPES = G_PLUS_SCOPE + USERINFO_EMAIL;
             try {
                setSessionCookie(GoogleAuthUtil.getToken(context, accountName, SCOPES));
             } catch (GooglePlayServicesAvailabilityException playEx) {
@@ -270,6 +345,7 @@ public class MainActivity extends Activity {
                });
             }
             
+            updateMenu();
             pd.dismiss();
          }
       }.start();

@@ -26,11 +26,6 @@
             android:key="LOCALIPSTART"
             android:summary="If the current IP startswith this string, then use the internal url.  Only valid if using Automatic Policy"
             android:title="Local IP Search String" />
-        <EditTextPreference
-            android:defaultValue=""
-            android:key="Session"
-            android:summary="The session cookie for SHAC - delete value to clear"
-            android:title="Session Cookie" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Navigation settings">
