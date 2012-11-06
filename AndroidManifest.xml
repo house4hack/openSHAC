@@ -6,7 +6,10 @@
     android:versionName="1.4">
 
     <uses-sdk android:minSdkVersion="5" android:targetSdkVersion="5"/>
-
+    
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false"/>
+    <uses-feature android:name="android.hardware.wifi" android:required="false"/>
+    
     <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.INTERNET" >
