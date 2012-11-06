@@ -325,8 +325,12 @@ public class MainActivity extends Activity {
                   public void run() {
                      new AlertDialog.Builder(context).setTitle(R.string.title_select_account).setItems(accountNames, new OnClickListener() {
                         @Override
-                        public void onClick(DialogInterface dialog, int pos) {
-                           doOAuth(context, accountNames[pos]);
+                        public void onClick(DialogInterface dialog, final int pos) {
+                           new Thread() {
+                              public void run() {
+                                 doOAuth(context, accountNames[pos]);
+                              };
+                           }.start();
                         }
                      }).setOnCancelListener(new OnCancelListener() {
                         @Override
