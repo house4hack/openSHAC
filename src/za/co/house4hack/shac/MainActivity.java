@@ -7,6 +7,8 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Enumeration;
 
 import android.accounts.Account;
@@ -15,6 +17,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
@@ -23,6 +26,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.net.Uri;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -149,6 +153,17 @@ public class MainActivity extends Activity {
       http.setRequestMethod("GET");
       http.setRequestProperty("User-agent",
                "Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.2 (KHTML, like Gecko) Ubuntu/10.04 Chromium/15.0.874.106 Chrome/15.0.874.106 Safari/535.2");
+
+      // send a unique identifier
+      String macMd5 = "";
+      try {
+         WifiManager wifiMgr = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+         macMd5 = md5(wifiMgr.getConnectionInfo().getMacAddress());
+      } catch (Exception e) {
+         Log.e("shac", "error getting mac address", e);
+         macMd5 = "";
+      }
+      http.setRequestProperty("X-SHAC-Token", macMd5);
       // http.setRequestMethod("POST");
       // http.setDoOutput(true);
       http.setReadTimeout(15000);
@@ -179,6 +194,30 @@ public class MainActivity extends Activity {
       return (retVal);
    }
 
+   public static final String md5(final String s) {
+      try {
+          // Create MD5 Hash
+          MessageDigest digest = java.security.MessageDigest
+                  .getInstance("MD5");
+          digest.update(s.getBytes());
+          byte messageDigest[] = digest.digest();
+
+          // Create Hex String
+          StringBuffer hexString = new StringBuffer();
+          for (int i = 0; i < messageDigest.length; i++) {
+              String h = Integer.toHexString(0xFF & messageDigest[i]);
+              while (h.length() < 2)
+                  h = "0" + h;
+              hexString.append(h);
+          }
+          return hexString.toString();
+
+      } catch (NoSuchAlgorithmException e) {
+          e.printStackTrace();
+      }
+      return "";
+  }   
+   
    @Override
    public boolean onCreateOptionsMenu(Menu menu) {
       super.onCreateOptionsMenu(menu);
