@@ -1,0 +1,12 @@
+{{def mytable(records, class_name=''):}}
+<table class="{{=class_name}}">
+{{for col in [column.split('.')[1] for column in x.colnames]:}}
+<th> col</th>
+{{pass}}
+{{for r in records:}}
+<tr>{{for k,v in r.items():}}
+<td>{{=v}}</td>
+{{pass}}</tr>
+{{pass}}
+</table>
+{{return}}

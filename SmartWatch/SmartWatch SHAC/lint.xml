@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <issue id="IconDuplicates">
+        <!-- Icons for accessory and LDPI devices happens to be the same. -->
+        <ignore path="res/drawable/icon_extension.png" />
+        <ignore path="res/drawable-ldpi/icon.png" />
+    </issue>
+
+    <!-- Images for accessory is in density less folder. -->
+    <issue id="IconLocation" severity="ignore"/>
+</lint>

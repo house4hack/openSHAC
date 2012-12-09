@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- No translation of sample extensions -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="app_name">Sample Widget Extension</string>
+    <!-- Title of preference activity -->
+    <string name="preference_activity_title">Sample widget settings</string>
+    <!-- Configuration text shown in preferences -->
+    <string name="configuration_text">Sample widget settings</string>
+    <!-- Extension name, shown in preferences -->
+    <string name="extension_name">Sample widget</string>
+
+    <string name="extension_info">Sample Widget</string>
+    <string name="preference_option_read_me">READ ME</string>
+    <string name="preference_key_read_me">preference_key_read_me</string>
+    <string name="preference_option_read_me_txt">The sample widget extension shows current time on the accessory.\n\nThe time is updated every minute.\n\nWhen tapping on the widget the time switches between 12 hour am/pm and 24 hour display mode. </string>
+    <string name="preference_key_clock_mode">preference_key_clock_mode</string>
+</resources>
