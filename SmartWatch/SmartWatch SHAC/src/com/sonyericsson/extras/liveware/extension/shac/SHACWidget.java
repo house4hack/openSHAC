@@ -74,6 +74,7 @@ class SHACWidget extends WidgetExtension {
     @Override
     public void onStartRefresh() {
         Log.d(SHACExtensionService.LOG_TAG, "startRefresh");
+        updateWidget();
         cancelScheduledRefresh(SHACExtensionService.EXTENSION_KEY);
     }
 

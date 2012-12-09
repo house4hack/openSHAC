@@ -14,4 +14,7 @@
     <string name="preference_key_read_me">preference_key_read_me</string>
     <string name="preference_option_read_me_txt">The SHAC extension allows you to open the SHAC gate or door by tapping the widget. You must have the openSHAC app installed.</string>
     <string name="preference_key_clock_mode">preference_key_clock_mode</string>
+    
+    <string name="open_gate">Gate</string>
+    <string name="open_door">Door</string>
 </resources>
