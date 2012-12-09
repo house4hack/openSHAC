@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- px is used since this is a layout for the accessory display. -->
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/smart_watch_widget_width_inner"
+    android:layout_height="@dimen/smart_watch_widget_height_inner" xmlns:tools="http://schemas.android.com/tools" tools:ignore="PxUsage">
+
+    <com.sonyericsson.extras.liveware.extension.util.AefTextView
+        android:id="@+id/shac_widget_gate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true"
+        android:textColor="@color/smart_watch_text_color_orange"
+        android:textSize="20px"
+        android:textStyle="bold" />
+
+    <com.sonyericsson.extras.liveware.extension.util.AefTextView
+        android:id="@+id/shac_widget_door"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:textColor="@color/smart_watch_text_color_orange"
+        android:textSize="20px"
+        android:textStyle="bold" />
+    
+</RelativeLayout>

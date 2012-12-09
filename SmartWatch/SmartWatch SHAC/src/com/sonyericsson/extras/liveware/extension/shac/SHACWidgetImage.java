@@ -40,9 +40,7 @@ import com.sonyericsson.extras.liveware.extension.util.widget.SmartWatchWidgetIm
 /**
  * The class decorates a widget image with sample UI components.
  */
-public class SmartWatchSHACWidgetImage extends SmartWatchWidgetImage {
-
-    private String mTime;
+public class SHACWidgetImage extends SmartWatchWidgetImage {
 
     /**
      * Create sample widget image.
@@ -50,16 +48,14 @@ public class SmartWatchSHACWidgetImage extends SmartWatchWidgetImage {
      * @param context The context.
      * @param time The time.
      */
-    public SmartWatchSHACWidgetImage(final Context context, final String time) {
+    public SHACWidgetImage(final Context context) {
         super(context);
-        setInnerLayoutResourceId(R.layout.smart_watch_sample_widget);
-        mTime = time;
+        setInnerLayoutResourceId(R.layout.shac_widget);
     }
 
     @Override
     protected void applyInnerLayout(LinearLayout innerLayout) {
-        // Set time
-        ((TextView)innerLayout.findViewById(R.id.smart_watch_sample_widget_time)).setText(mTime);
+        //((TextView)innerLayout.findViewById(R.id.smart_watch_sample_widget_time)).setText(mTime);
     }
 
 }

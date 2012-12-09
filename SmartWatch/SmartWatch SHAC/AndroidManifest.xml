@@ -15,7 +15,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name="SampleExtensionService" />
+        <service android:name="SHACExtensionService" />
 
         <receiver android:name=".ExtensionReceiver">
             <intent-filter>

@@ -41,6 +41,8 @@ import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
 import android.text.format.DateUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.widget.Toast;
 
 import com.sonyericsson.extras.liveware.aef.widget.Widget;
 import com.sonyericsson.extras.liveware.extension.util.SmartWatchConst;
@@ -55,14 +57,6 @@ class SHACWidget extends WidgetExtension {
     public static final int WIDTH = 128;
 
     public static final int HEIGHT = 110;
-
-    private static final long UPDATE_INTERVAL = 10 * DateUtils.SECOND_IN_MILLIS;
-
-    private static final SimpleDateFormat TIME_FORMAT_24_H = new SimpleDateFormat("HH:mm",
-            new Locale("se"));
-
-    private static final SimpleDateFormat TIME_FORMAT_AM_PM = new SimpleDateFormat("hh:mm a",
-            new Locale("se"));
 
     /**
      * Create sample widget.
@@ -80,10 +74,7 @@ class SHACWidget extends WidgetExtension {
     @Override
     public void onStartRefresh() {
         Log.d(SHACExtensionService.LOG_TAG, "startRefresh");
-        // Update now and every 10th second
         cancelScheduledRefresh(SHACExtensionService.EXTENSION_KEY);
-        scheduleRepeatingRefresh(System.currentTimeMillis(), UPDATE_INTERVAL,
-                 SHACExtensionService.EXTENSION_KEY);
     }
 
     /**
@@ -129,32 +120,14 @@ class SHACWidget extends WidgetExtension {
         }
 
         if (type == Widget.Intents.EVENT_TYPE_SHORT_TAP) {
-            // Change clock mode on short tap.
-            setClockMode24h(!isClockMode24h());
-            // Update clock widget now
-            updateWidget();
+           if (y < HEIGHT / 2) {
+              // open gate
+              Log.d("shac", "open gate");
+           } else {
+              // open door              
+              Log.d("shac", "open door");
+           }
         }
-    }
-
-    /**
-     * Set clock format
-     *
-     * @return True if 24-h clock format, false to use 12-h am/pm
-     */
-    private boolean isClockMode24h() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-        return prefs.getBoolean(mContext.getString(R.string.preference_key_clock_mode), true);
-    }
-
-    /**
-     * Get clock format
-     *
-     * @param isClockMode24h True if 24-h clock format, false to use 12-h am/pm
-     */
-    private void setClockMode24h(boolean isClockMode24h) {
-        Editor editor = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
-        editor.putBoolean(mContext.getString(R.string.preference_key_clock_mode), isClockMode24h);
-        editor.commit();
     }
 
     /**
@@ -162,14 +135,6 @@ class SHACWidget extends WidgetExtension {
      */
     private void updateWidget() {
         Log.d(SHACExtensionService.LOG_TAG, "updateWidget");
-        // Get time
-        String time = null;
-        if (isClockMode24h()) {
-            time = TIME_FORMAT_24_H.format(new Date());
-        } else {
-            time = TIME_FORMAT_AM_PM.format(new Date());
-        }
-
-        showBitmap(new SmartWatchSHACWidgetImage(mContext, time).getBitmap());
+        showBitmap(new SHACWidgetImage(mContext).getBitmap());
     }
 }
