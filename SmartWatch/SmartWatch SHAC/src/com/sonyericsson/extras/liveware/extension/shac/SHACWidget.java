@@ -31,17 +31,11 @@
 
 package com.sonyericsson.extras.liveware.extension.shac;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
+import java.util.List;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.preference.PreferenceManager;
-import android.text.format.DateUtils;
+import android.content.Intent;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.widget.Toast;
 
 import com.sonyericsson.extras.liveware.aef.widget.Widget;
@@ -121,16 +115,39 @@ class SHACWidget extends WidgetExtension {
         }
 
         if (type == Widget.Intents.EVENT_TYPE_SHORT_TAP) {
+           Intent i = new Intent();
+           i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+           i.setAction("za.co.house4hack.shac.OPEN");
+
            if (y < HEIGHT / 2) {
               // open gate
               Log.d("shac", "open gate");
+              i.putExtra("access", "gate");
            } else {
               // open door              
               Log.d("shac", "open door");
+              i.putExtra("access", "gate");
+           }
+           
+           if (hasIntentActivity(mContext, i)) {
+              mContext.startActivity(i);
+           } else {
+              Toast.makeText(mContext, "SHAC app not installed", Toast.LENGTH_LONG).show();
            }
         }
     }
-
+    
+    /**
+     * Check if the intent has an activity receiver
+     * 
+     * @param context
+     * @param i
+     * @return
+     */
+    public static boolean hasIntentActivity(Context context, Intent i) {
+       List l = context.getPackageManager().queryIntentActivities(i, 0);
+       return !l.isEmpty();
+    }
     /**
      * Update the widget.
      */
