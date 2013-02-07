@@ -49,6 +49,7 @@ public class MainActivity extends Activity {
    private static final int AUTH_REQUEST_CODE = 0;
    private SharedPreferences preferences;
    Menu menu = null;
+   private boolean isForResult = false;
 
    // private JREngageDelegate mEngageDelegate = ...;
 
@@ -61,6 +62,7 @@ public class MainActivity extends Activity {
 
       Intent intent = getIntent();
       if (intent.getAction().equals(getString(R.string.openaction))) {
+         isForResult = true; // return a result to the caller
          String access = intent.getStringExtra("access");
          if (access.equalsIgnoreCase("door")) {
             openDoor(null);
@@ -96,6 +98,14 @@ public class MainActivity extends Activity {
          protected void onPostExecute(String result) {
             super.onPostExecute(result);
             pd.dismiss();
+            
+            if (isForResult) {
+               Intent i = new Intent();
+               i.putExtra("result", result);
+               setResult(RESULT_OK, i);
+               finish();
+            }
+            
             if (result == LOGIN_RESULT) {
                toastMessage(R.string.pleaseloginfirst);
             } else {
