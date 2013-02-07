@@ -126,19 +126,10 @@ class SHACWidget extends WidgetExtension {
 //         return;
 //      }
 
+      if (isGatePressed || isDoorPressed) return; // still busy
+      
       new Thread() {
          public void run() {
-            if (!isConnected(mContext)) {
-               // tell BatteryFu to sync
-               try {
-                  Intent i = new Intent("batteryfu.intent.action.TOGGLE", Uri.parse("sync://on"));
-                  mContext.sendBroadcast(i);
-                  // wait a few seconds
-                  Thread.sleep(5000);
-               } catch (Exception e) {
-               }
-            }
-
             if (type == Widget.Intents.EVENT_TYPE_SHORT_TAP) {
                Intent i = new Intent();
                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -163,6 +154,18 @@ class SHACWidget extends WidgetExtension {
                }
 
                if (hasIntentActivity(mContext, i)) {
+                  if (!isConnected(mContext)) {
+                     // tell BatteryFu to sync
+                     try {
+                        Intent bf = new Intent("batteryfu.intent.action.TOGGLE", Uri.parse("sync://on"));
+                        mContext.sendBroadcast(bf);
+                        // wait a few seconds
+                        Thread.sleep(5000);
+                     } catch (Exception e) {
+                     }
+                  }
+
+                  // tell SHAC to open
                   mContext.startActivity(i);                  
                } else {
                   new Handler(mContext.getMainLooper()).post(new Runnable() {
