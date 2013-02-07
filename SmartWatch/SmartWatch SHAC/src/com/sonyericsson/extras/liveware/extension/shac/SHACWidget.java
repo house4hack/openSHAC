@@ -45,6 +45,7 @@ import android.widget.Toast;
 
 import com.sonyericsson.extras.liveware.aef.widget.Widget;
 import com.sonyericsson.extras.liveware.extension.util.SmartWatchConst;
+import com.sonyericsson.extras.liveware.extension.util.control.ControlExtension;
 import com.sonyericsson.extras.liveware.extension.util.widget.WidgetExtension;
 
 /**
@@ -54,9 +55,11 @@ import com.sonyericsson.extras.liveware.extension.util.widget.WidgetExtension;
 class SHACWidget extends WidgetExtension {
 
    public static final int WIDTH = 128;
-
    public static final int HEIGHT = 110;
 
+   private boolean isGatePressed = false;
+   private boolean isDoorPressed = false;
+   
    /**
     * Create sample widget.
     * 
@@ -142,17 +145,25 @@ class SHACWidget extends WidgetExtension {
                i.setAction("za.co.house4hack.shac.OPEN");
 
                if (y < HEIGHT / 2) {
+                  isGatePressed = true; 
+                  isDoorPressed = false; 
+                  updateWidget();
+                  
                   // open gate
                   Log.d("shac", "open gate");
                   i.putExtra("access", "gate");
                } else {
+                  isGatePressed = false; 
+                  isDoorPressed = true; 
+                  updateWidget();
+                  
                   // open door
                   Log.d("shac", "open door");
                   i.putExtra("access", "door");
                }
 
                if (hasIntentActivity(mContext, i)) {
-                  mContext.startActivity(i);
+                  mContext.startActivity(i);                  
                } else {
                   new Handler(mContext.getMainLooper()).post(new Runnable() {
                      @Override
@@ -161,6 +172,11 @@ class SHACWidget extends WidgetExtension {
                      }
                   });
                }
+               
+               try { sleep(2000); } catch (Exception e) {}
+               isGatePressed = false;
+               isDoorPressed = false;
+               updateWidget();
             }
          };
       }.start();
@@ -198,6 +214,6 @@ class SHACWidget extends WidgetExtension {
     */
    private void updateWidget() {
       Log.d(SHACExtensionService.LOG_TAG, "updateWidget");
-      showBitmap(new SHACWidgetImage(mContext).getBitmap());
+      showBitmap(new SHACWidgetImage(mContext, isGatePressed, isDoorPressed).getBitmap());
    }
 }

@@ -41,6 +41,8 @@ import com.sonyericsson.extras.liveware.extension.util.widget.SmartWatchWidgetIm
  * The class decorates a widget image with sample UI components.
  */
 public class SHACWidgetImage extends SmartWatchWidgetImage {
+   boolean gatePressed = false;
+   boolean doorPressed = false;
 
     /**
      * Create sample widget image.
@@ -48,14 +50,26 @@ public class SHACWidgetImage extends SmartWatchWidgetImage {
      * @param context The context.
      * @param time The time.
      */
-    public SHACWidgetImage(final Context context) {
+    public SHACWidgetImage(final Context context, boolean isGatePressed, boolean isDoorPressed) {
         super(context);
+        this.doorPressed = isDoorPressed;
+        this.gatePressed = isGatePressed;
         setInnerLayoutResourceId(R.layout.shac_widget);
     }
 
     @Override
     protected void applyInnerLayout(LinearLayout innerLayout) {
-        //((TextView)innerLayout.findViewById(R.id.smart_watch_sample_widget_time)).setText(mTime);
+       if (gatePressed) {
+          innerLayout.findViewById(R.id.shac_widget_gate).setBackgroundColor(
+                   mContext.getResources().getColor(R.color.smart_watch_text_color_grey));
+       }
+
+       if (doorPressed) {
+          innerLayout.findViewById(R.id.shac_widget_door).setBackgroundColor(
+                   mContext.getResources().getColor(R.color.smart_watch_text_color_grey));
+       }
+       
+       //((TextView)innerLayout.findViewById(R.id.smart_watch_sample_widget_time)).setText(mTime);
     }
 
 }
