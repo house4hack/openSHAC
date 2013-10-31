@@ -9,10 +9,10 @@ Last update : Thu Oct 31 23:09:32 SAST 2013
  - Accomodate Arduino 1.0 String class reimplementation and in place replacement
  - Dependancies for SHAC :
    - https://github.com/Hardcore-fs/TinyWebServer/archive/master.zip
-     -> Extract above zip file to to sketchbook/libraries/TinyWebServer/
+     -> Extract above zip file to your sketchbook/libraries/TinyWebServer/
    - http://arduiniana.org/Flash/Flash4.zip
      -> See http://arduiniana.org/libraries/flash/
-     -> Extract above Flash4.zip file to to sketchbook/libraries/Flash/
+     -> Extract above Flash4.zip file to your sketchbook/libraries/Flash/
 
 The Webserver sub-implementation
 Copyright 2010 Ovidiu Predescu <ovidiu@gmail.com>
