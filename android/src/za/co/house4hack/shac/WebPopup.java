@@ -4,8 +4,10 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -153,8 +155,18 @@ public class WebPopup extends Activity {
 
             throw new Exception("Failed to authenticate. Google OAuth may have changed.");
          } catch (Exception e) {
-            new AlertDialog.Builder(ctx).setTitle("ERROR").setMessage(e.getMessage())
-            .setPositiveButton(android.R.string.ok, null).setCancelable(false).create().show();
+            new AlertDialog.Builder(ctx)
+               .setTitle("ERROR")
+               .setMessage(e.getMessage())
+               .setPositiveButton(android.R.string.ok, new Dialog.OnClickListener() {
+                  @Override
+                  public void onClick(DialogInterface d, int i) {
+                     d.dismiss();
+                  }
+               })
+               .setCancelable(false)
+               .create()
+               .show();
          }
       }
 
