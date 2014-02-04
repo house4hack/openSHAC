@@ -1,20 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    android:installLocation="auto"
     package="za.co.house4hack.shac"
+    android:installLocation="auto"
     android:versionCode="5"
-    android:versionName="1.5">
+    android:versionName="1.5" >
 
-    <uses-sdk android:minSdkVersion="5" android:targetSdkVersion="5"/>
-    
-    <uses-feature android:name="android.hardware.touchscreen" android:required="false"/>
-    <uses-feature android:name="android.hardware.wifi" android:required="false"/>
-    
-    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-sdk
+        android:minSdkVersion="5"
+        android:targetSdkVersion="5" />
+
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.wifi"
+        android:required="false" />
+
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.INTERNET" >
-    </uses-permission>   
-    
+    </uses-permission>
+
     <application
         android:hardwareAccelerated="true"
         android:icon="@drawable/icon"
@@ -28,13 +34,18 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <intent-filter >
+            <intent-filter>
                 <action android:name="za.co.house4hack.shac.OPEN" />
-                <category android:name="android.intent.category.DEFAULT" />                
+
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity
             android:name=".PreferencesActivity"
             android:label="@string/settings_title" />
+        <activity
+            android:name=".WebPopup"
+            android:label="@string/settings_title" />
     </application>
+
 </manifest>

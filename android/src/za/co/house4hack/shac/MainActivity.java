@@ -47,6 +47,7 @@ public class MainActivity extends Activity {
    ProgressDialog pd;
    protected static final String LOGIN_RESULT = "Login";
    private static final int AUTH_REQUEST_CODE = 0;
+   protected static final int WEBAUTH_REQUEST_CODE = 1;
    private SharedPreferences preferences;
    Menu menu = null;
    private boolean isForResult = false;
@@ -311,7 +312,14 @@ public class MainActivity extends Activity {
 //         }
          updateMenu();
       }
-
+      
+      // 02-04 11:42:42.105: D/webpopup(28785): 
+      if (requestCode == WEBAUTH_REQUEST_CODE && resultCode == RESULT_OK) {
+         //Log.d("webauth", data.getDataString());
+         setSessionCookie(data.getData().getQueryParameter("code"));
+         updateMenu();
+      }
+      
       super.onActivityResult(requestCode, resultCode, data);
    }
 
@@ -351,12 +359,16 @@ public class MainActivity extends Activity {
                   }
                });
             } else if (names.length == 0) {
-               runOnUiThread(new Runnable() {
-                  @Override
-                  public void run() {
-                     Toast.makeText(context, R.string.err_no_accounts, Toast.LENGTH_LONG).show();
-                  }
-               });
+               pd.dismiss();
+               // No Google accounts, so use web login
+               Intent i = new Intent(MainActivity.this, WebPopup.class);
+               i.setData(Uri.parse(
+                        "https://accounts.google.com/o/oauth2/auth?" + 
+                        "scope=https://www.googleapis.com/auth/userinfo.email" + 
+                        "&response_type=code&redirect_uri=http://localhost:4567" + 
+                        "&client_id=231571905235.apps.googleusercontent.com" + 
+                        "&access_type=offline"));
+               startActivityForResult(i, WEBAUTH_REQUEST_CODE);
             } else {
                doOAuth(context, names[0]);
             }
