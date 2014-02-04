@@ -316,9 +316,8 @@ public class MainActivity extends Activity {
          updateMenu();
       }
       
-      // 02-04 11:42:42.105: D/webpopup(28785): 
       if (requestCode == WEBAUTH_REQUEST_CODE && resultCode == RESULT_OK) {
-         //Log.d("webauth", data.getDataString());
+         //Log.d("webauth", data.getStringExtra(EXTRA_TOKEN));
          setSessionCookie(data.getStringExtra(EXTRA_TOKEN));
          updateMenu();
       }
