@@ -21,7 +21,7 @@ public class WebPopup extends Activity {
       super.onCreate(savedInstanceState);
 
       // Remove title bar
-      this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+      //this.requestWindowFeature(Window.FEATURE_NO_TITLE);
       
       setContentView(R.layout.web_popup);
 

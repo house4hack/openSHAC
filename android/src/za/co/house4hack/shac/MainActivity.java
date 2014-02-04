@@ -59,6 +59,7 @@ public class MainActivity extends Activity {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.main);
       pd = new ProgressDialog(this);
+      pd.setCancelable(false);
       preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
       Intent intent = getIntent();
@@ -89,7 +90,8 @@ public class MainActivity extends Activity {
                   s = getData(dest);
                }
             } catch (IOException e) {
-               s = getString(R.string.openfail_message) + ":" + e.getMessage();
+               s = getString(R.string.openfail_message) + " " + e.getClass().getName();
+               if (e.getMessage() != null) s += " " + e.getMessage();
                Log.e("SHAC", "Error opening", e);
             }
             return s;
