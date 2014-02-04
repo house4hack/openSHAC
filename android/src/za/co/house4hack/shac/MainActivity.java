@@ -48,6 +48,7 @@ public class MainActivity extends Activity {
    protected static final String LOGIN_RESULT = "Login";
    private static final int AUTH_REQUEST_CODE = 0;
    protected static final int WEBAUTH_REQUEST_CODE = 1;
+   public static final String EXTRA_TOKEN = "access_token";
    private SharedPreferences preferences;
    Menu menu = null;
    private boolean isForResult = false;
@@ -318,7 +319,7 @@ public class MainActivity extends Activity {
       // 02-04 11:42:42.105: D/webpopup(28785): 
       if (requestCode == WEBAUTH_REQUEST_CODE && resultCode == RESULT_OK) {
          //Log.d("webauth", data.getDataString());
-         setSessionCookie(data.getData().getQueryParameter("code"));
+         setSessionCookie(data.getStringExtra(EXTRA_TOKEN));
          updateMenu();
       }
       
