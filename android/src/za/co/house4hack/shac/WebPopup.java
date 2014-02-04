@@ -7,6 +7,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -34,7 +35,6 @@ public class WebPopup extends Activity {
       
       final ProgressDialog pd = new ProgressDialog(this);
       pd.setMessage(getString(R.string.progress_loading));
-      pd.show();
 
       wv = (WebView) findViewById(R.id.web_webview);
       WebSettings settings = wv.getSettings();
@@ -81,6 +81,12 @@ public class WebPopup extends Activity {
             }
 
             return super.shouldOverrideUrlLoading(view, url);
+         }
+         
+         @Override
+         public void onPageStarted(WebView view, String url, Bitmap favicon) {
+            super.onPageStarted(view, url, favicon);
+            pd.show();
          }
 
          @Override
