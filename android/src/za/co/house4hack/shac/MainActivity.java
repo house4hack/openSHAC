@@ -74,7 +74,7 @@ public class MainActivity extends Activity {
          }
       }
    }
-
+   
    private void opentaskExecute(String url) {
       AsyncTask<String, Void, String> opentask = new AsyncTask<String, Void, String>() {
 
@@ -88,9 +88,10 @@ public class MainActivity extends Activity {
                   s = LOGIN_RESULT;
                } else {
                   String dest = params[0];
-                  s = getData(dest);
+                  Thread.sleep(5000);
+                  s = "debugging"; //getData(dest);
                }
-            } catch (IOException e) {
+            } catch (Exception e) {
                s = getString(R.string.openfail_message) + " " + e.getClass().getName();
                if (e.getMessage() != null) s += " " + e.getMessage();
                Log.e("SHAC", "Error opening", e);
@@ -101,7 +102,7 @@ public class MainActivity extends Activity {
          @Override
          protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            pd.dismiss();
+            try { pd.dismiss(); } catch (Exception e) {}
             
             if (isForResult) {
                Intent i = new Intent();
@@ -161,6 +162,7 @@ public class MainActivity extends Activity {
    }
 
    public String getData(final String url) throws IOException {
+      if (true) throw new IOException("testing");
       URL urlObject = new URL(url);
       HttpURLConnection http = (HttpURLConnection) urlObject.openConnection();
       http.setRequestMethod("GET");
@@ -409,19 +411,24 @@ public class MainActivity extends Activity {
                });
             }
 
-            updateMenu();
-            pd.dismiss();
+            runOnUiThread(new Runnable() {
+               @Override
+               public void run() {
+                  updateMenu();
+                  pd.dismiss();
+               }
+            });
          }
       }.start();
 
    }
 
    private void toastMessage(String message) {
-      Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
+      Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
    }
 
    private void toastMessage(int message) {
-      Toast.makeText(MainActivity.this, getString(message), Toast.LENGTH_LONG).show();
+      toastMessage(getString(message));
    }
 
    public void setSessionCookie(String token) {
