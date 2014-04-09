@@ -33,6 +33,10 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+/**
+ * A webview-based dialog/activity to enable Google OAuth 2.0 authentication
+ * @author tobykurien
+ */
 public class WebPopup extends Activity {
    WebView wv;
    int redirectsLeft = -1; // how many redirects left till we can parse output
