@@ -63,7 +63,7 @@ public class WebPopup extends Activity {
       wv.setWebViewClient(new WebViewClient() {
          @Override
          public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            Log.d("shac", "Should override: " + url);
+            //Log.d("shac", "Should override: " + url);
             if (url.startsWith("http://localhost")) {
                Uri data = Uri.parse(url);
                String token = data.getQueryParameter("code");
@@ -91,12 +91,13 @@ public class WebPopup extends Activity {
                                  is.close();
                                  
                                  String jsonString = sb.toString();
-                                 Log.d("shac", "Got Auth response: " + jsonString);
+                                 //Log.d("shac", "Got Auth response: " + jsonString);
                                  loadJson(jsonString);
-                                 return "Done";
+                                 return "Done"; // not sure where this goes...
                               }
                            });
                         } catch (IOException e) {
+                           showError(WebPopup.this, e);
                            Log.e("shac", "Error loading auth page", e);
                         }
                      };
@@ -120,14 +121,14 @@ public class WebPopup extends Activity {
          @Override
          public void onPageStarted(WebView view, String url, Bitmap favicon) {
             super.onPageStarted(view, url, favicon);
-            Log.d("shac", "Loading: " + url);
+            //Log.d("shac", "Loading: " + url);
             pd.show();
          }
 
          @Override
          public void onPageFinished(WebView view, String url) {
             super.onPageFinished(view, url);
-            Log.d("shac", "Page loaded: " + url);
+            //Log.d("shac", "Page loaded: " + url);
             if (url.startsWith("https://accounts.google.com/o/oauth2/token")) {
                wv.loadUrl("javascript:window.HtmlViewer.showHTML(document.body.innerText);");
             }
@@ -172,7 +173,7 @@ public class WebPopup extends Activity {
 
    public void loadJson(String jsonString) {
       try {
-         Log.d("shac", "Parsing JSON result: " + jsonString);
+         //Log.d("shac", "Parsing JSON result: " + jsonString);
          JSONObject json = new JSONObject(jsonString);
          // get the body as json and look for error or access_token
          
@@ -190,18 +191,27 @@ public class WebPopup extends Activity {
 
          throw new Exception("Failed to authenticate. Google OAuth may have changed.");
       } catch (Exception e) {
-         new AlertDialog.Builder(this)
-            .setTitle("ERROR")
-            .setMessage(e.getMessage())
-            .setPositiveButton(android.R.string.ok, new Dialog.OnClickListener() {
-               @Override
-               public void onClick(DialogInterface d, int i) {
-                  d.dismiss();
-               }
-            })
-            .setCancelable(false)
-            .create()
-            .show();
+         showError(this, e);
       }
+   }
+
+   private void showError(final WebPopup webPopup, final Exception e) {
+      webPopup.runOnUiThread(new Runnable() {
+         @Override
+         public void run() {
+            new AlertDialog.Builder(webPopup)
+               .setTitle("ERROR")
+               .setMessage(e.getMessage())
+               .setPositiveButton(android.R.string.ok, new Dialog.OnClickListener() {
+                  @Override
+                  public void onClick(DialogInterface d, int i) {
+                     d.dismiss();
+                  }
+               })
+               .setCancelable(false)
+               .create()
+               .show();
+         }
+      });
    }
 }
