@@ -1,5 +1,18 @@
 package za.co.house4hack.shac;
 
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONObject;
 
 import android.app.Activity;
@@ -12,8 +25,9 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
-import android.view.View;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -45,30 +59,48 @@ public class WebPopup extends Activity {
       if (extras.containsKey("text_size")) {
          settings.setTextSize((WebSettings.TextSize) extras.get("text_size"));
       }
-      wv.addJavascriptInterface(new MyJavaScriptInterface(this), "HtmlViewer");
       
       wv.setWebViewClient(new WebViewClient() {
          @Override
          public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            Log.d("shac", "Should override: " + url);
             if (url.startsWith("http://localhost")) {
                Uri data = Uri.parse(url);
                String token = data.getQueryParameter("code");
 
                if (token != null) {
-                  String postHtml = 
-                           "<html><body>Authenticating..." +
-                           "<form action='https://accounts.google.com/o/oauth2/token'" +
-                           " method='POST'>" + 
-                           "<input type='hidden' name='code' value='{code}'/>" + 
-                           "<input type='hidden' name='client_id' value='231571905235.apps.googleusercontent.com'/>" + 
-                           "<input type='hidden' name='client_secret' value='_TQPhcCcw7eAra4PUaY74m_W'/>" + 
-                           "<input type='hidden' name='grant_type' value='authorization_code'/> " + 
-                           "<input type='hidden' name='redirect_uri' value='http://localhost:4567'/>" + 
-                           "</form><script type='text/javascript'>document.forms[0].submit();</script></body></html>";
-                  postHtml = postHtml.replace("{code}", token);
-                  wv.loadData(postHtml, "text/html", "utf-8");
-                  wv.setVisibility(View.INVISIBLE); // so that access token doesn't display
-                  redirectsLeft = 2;
+                  final List<NameValuePair> postParams = new ArrayList<NameValuePair>();
+                  postParams.add(new BasicNameValuePair("code", token));
+                  postParams.add(new BasicNameValuePair("client_id", "231571905235.apps.googleusercontent.com"));
+                  postParams.add(new BasicNameValuePair("client_secret", "_TQPhcCcw7eAra4PUaY74m_W"));
+                  postParams.add(new BasicNameValuePair("grant_type", "authorization_code"));
+                  postParams.add(new BasicNameValuePair("redirect_uri", "http://localhost:4567"));
+                  
+                  new Thread() {
+                     public void run() {
+                        try {
+                           httpPost("https://accounts.google.com/o/oauth2/token", postParams, new ResponseHandler<String>() {
+                              @Override
+                              public String handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
+                                 DataInputStream is = new DataInputStream(response.getEntity().getContent());
+                                 String line;
+                                 StringBuffer sb = new StringBuffer();
+                                 while ((line = is.readLine()) != null) {
+                                    sb.append(line);
+                                 }
+                                 is.close();
+                                 
+                                 String jsonString = sb.toString();
+                                 Log.d("shac", "Got Auth response: " + jsonString);
+                                 loadJson(jsonString);
+                                 return "Done";
+                              }
+                           });
+                        } catch (IOException e) {
+                           Log.e("shac", "Error loading auth page", e);
+                        }
+                     };
+                  }.start();
                } else {
                }
 
@@ -88,17 +120,18 @@ public class WebPopup extends Activity {
          @Override
          public void onPageStarted(WebView view, String url, Bitmap favicon) {
             super.onPageStarted(view, url, favicon);
+            Log.d("shac", "Loading: " + url);
             pd.show();
          }
 
          @Override
          public void onPageFinished(WebView view, String url) {
             super.onPageFinished(view, url);
-            if (redirectsLeft == 0) {
+            Log.d("shac", "Page loaded: " + url);
+            if (url.startsWith("https://accounts.google.com/o/oauth2/token")) {
                wv.loadUrl("javascript:window.HtmlViewer.showHTML(document.body.innerText);");
             }
             pd.dismiss();
-            redirectsLeft--;
          }
 
          @Override
@@ -128,47 +161,47 @@ public class WebPopup extends Activity {
        return super.onKeyDown(keyCode, event);
    }   
    
-   class MyJavaScriptInterface {
+   // Do HTTP POST
+   public static void httpPost(String url, List<? extends NameValuePair> data, ResponseHandler<? extends Object> response) throws IOException {
+      UrlEncodedFormEntity entity = new UrlEncodedFormEntity(data);
+      DefaultHttpClient client = new DefaultHttpClient();
+      HttpPost post = new HttpPost(url);
+      post.setEntity(entity); // with list of key-value pairs
+      client.execute(post, response); // implement ResponseHandler to handle response correctly.
+   }
 
-      private Context ctx;
-
-      MyJavaScriptInterface(Context ctx) {
-          this.ctx = ctx;
-      }
-
-      public void showHTML(String html) {
-         try {
-            JSONObject json = new JSONObject(html);
-            // get the body as json and look for error or access_token
-            
-            if (json.has("error")) {
-               throw new Exception("ERROR: " + json.getString("error"));
-            }
-            
-            if (json.has("access_token")) {
-               Intent data = new Intent();
-               data.putExtra(MainActivity.EXTRA_TOKEN, json.getString("access_token"));
-               setResult(RESULT_OK, data);
-               finish();
-               return;
-            }
-
-            throw new Exception("Failed to authenticate. Google OAuth may have changed.");
-         } catch (Exception e) {
-            new AlertDialog.Builder(ctx)
-               .setTitle("ERROR")
-               .setMessage(e.getMessage())
-               .setPositiveButton(android.R.string.ok, new Dialog.OnClickListener() {
-                  @Override
-                  public void onClick(DialogInterface d, int i) {
-                     d.dismiss();
-                  }
-               })
-               .setCancelable(false)
-               .create()
-               .show();
+   public void loadJson(String jsonString) {
+      try {
+         Log.d("shac", "Parsing JSON result: " + jsonString);
+         JSONObject json = new JSONObject(jsonString);
+         // get the body as json and look for error or access_token
+         
+         if (json.has("error")) {
+            throw new Exception("ERROR: " + json.getString("error"));
          }
-      }
+         
+         if (json.has("access_token")) {
+            Intent data = new Intent();
+            data.putExtra(MainActivity.EXTRA_TOKEN, json.getString("access_token"));
+            setResult(RESULT_OK, data);
+            finish();
+            return;
+         }
 
-  }   
+         throw new Exception("Failed to authenticate. Google OAuth may have changed.");
+      } catch (Exception e) {
+         new AlertDialog.Builder(this)
+            .setTitle("ERROR")
+            .setMessage(e.getMessage())
+            .setPositiveButton(android.R.string.ok, new Dialog.OnClickListener() {
+               @Override
+               public void onClick(DialogInterface d, int i) {
+                  d.dismiss();
+               }
+            })
+            .setCancelable(false)
+            .create()
+            .show();
+      }
+   }
 }
