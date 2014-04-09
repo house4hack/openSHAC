@@ -88,8 +88,7 @@ public class MainActivity extends Activity {
                   s = LOGIN_RESULT;
                } else {
                   String dest = params[0];
-                  Thread.sleep(5000);
-                  s = "debugging"; //getData(dest);
+                  s = getData(dest);
                }
             } catch (Exception e) {
                s = getString(R.string.openfail_message) + " " + e.getClass().getName();
@@ -162,7 +161,6 @@ public class MainActivity extends Activity {
    }
 
    public String getData(final String url) throws IOException {
-      if (true) throw new IOException("testing");
       URL urlObject = new URL(url);
       HttpURLConnection http = (HttpURLConnection) urlObject.openConnection();
       http.setRequestMethod("GET");
